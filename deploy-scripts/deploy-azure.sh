@@ -18,8 +18,4 @@ docker run -d --name ${APP_NAME} \
 
 echo "Kontener ${APP_NAME} uruchomiony na porcie 80"
 
-# Zapisanie informacji o wdrożeniu
-mkdir -p ./metrics
-echo "{\"deploymentTime\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\", \"version\": \"${BUILD_VERSION}\", \"environment\": \"azure\"}" > ./metrics/deployment-info.json
-
 echo "Wdrażanie na Azure zakończone."
