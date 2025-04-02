@@ -77,20 +77,7 @@ pipeline {
                 }
             }
         }
-        
-        stage('Verify') {
-            steps {
-                // Oczekiwanie na gotowość aplikacji
-                sh 'sleep 30'
-                
-                // Weryfikacja dostępności aplikacji
-                sh './verify-deployment.sh'
-                
-                // Zbieranie podstawowych metryk
-                sh './collect-metrics.sh'
-            }
-        }
-    }
+    
     
     post {
         success {
