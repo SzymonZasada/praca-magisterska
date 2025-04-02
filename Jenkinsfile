@@ -1,10 +1,4 @@
 pipeline {
-    // agent {
-    //     docker {
-    //         image 'node:20.11.1-alpine' 
-    //         args '--user root -v /var/run/docker.sock:/var/run/docker.sock'  
-    //     }
-    // }
     agent any
     
     environment {
@@ -16,14 +10,7 @@ pipeline {
     }
     
     stages {
-     //   stage('Setup') {
-     //       steps {
-     //           sh 'sudo apk add --no-cache git || apk add --no-cache git'
-     //           sh 'git config --global --add safe.directory /var/lib/jenkins/workspace/Pipeline'
-
-     //    }
-     // }
-        
+    
         stage('Checkout') {
             steps {
                 // Pobranie kodu z repozytorium GitHub
@@ -77,13 +64,15 @@ pipeline {
                 }
             }
         }
+      stage('End') {
+          steps {
+                echo "Pipeline zakończony pomyślnie!"
+         }
+      }
     }
     
     
     post {
-        success {
-            echo 'Pipeline zakończony sukcesem!'
-        }
         failure {
             echo 'Pipeline zakończony niepowodzeniem!'
         }
@@ -91,9 +80,6 @@ pipeline {
             // Czyszczenie środowiska
             sh 'docker rmi ${APP_NAME}:${BUILD_VERSION} || true'
             sh 'docker rmi ${APP_NAME}:latest || true'
-            
-            // Archiwizacja metryk
-            archiveArtifacts artifacts: 'metrics/*.json', allowEmptyArchive: true
         }
     }
 }
