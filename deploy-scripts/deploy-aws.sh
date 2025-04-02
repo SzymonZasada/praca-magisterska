@@ -3,20 +3,23 @@ set -e
 
 echo "Rozpoczynam wdrażanie na AWS..."
 
-# Logowanie do AWS ECR (Elastic Container Registry)
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com
+# Zakładamy, że obraz Docker już istnieje lokalnie (zbudowany przez Jenkinsa)
+echo "Używam lokalnego obrazu ${APP_NAME}:${BUILD_VERSION} do wdrożenia"
 
-# Tagowanie obrazu dla ECR
-docker tag ${APP_NAME}:${BUILD_VERSION} ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/${APP_NAME}:${BUILD_VERSION}
+# Zatrzymanie i usunięcie istniejącego kontenera (jeśli istnieje)
+docker stop ${APP_NAME} 2>/dev/null || true
+docker rm ${APP_NAME} 2>/dev/null || true
 
-# Wysyłanie obrazu do ECR
-docker push ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/${APP_NAME}:${BUILD_VERSION}
+# Uruchomienie nowego kontenera
+docker run -d --name ${APP_NAME} \
+  -p 80:80 \
+  --restart unless-stopped \
+  ${APP_NAME}:${BUILD_VERSION}
 
-# Aktualizacja definicji zadania ECS
-envsubst < task-definition-template.json > task-definition.json
-aws ecs register-task-definition --cli-input-json file://task-definition.json
+echo "Kontener ${APP_NAME} uruchomiony na porcie 80"
 
-# Aktualizacja usługi ECS
-aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition ${APP_NAME}:${BUILD_VERSION} --force-new-deployment
+# Zapisanie informacji o wdrożeniu
+mkdir -p ./metrics
+echo "{\"deploymentTime\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\", \"version\": \"${BUILD_VERSION}\", \"environment\": \"${CLOUD_PLATFORM}\"}" > ./metrics/deployment-info.json
 
 echo "Wdrażanie na AWS zakończone."
