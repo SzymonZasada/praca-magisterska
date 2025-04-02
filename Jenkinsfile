@@ -15,6 +15,12 @@ pipeline {
     }
     
     stages {
+       stage('Setup') {
+           steps {
+               sh 'apk add --no-cache git'
+        }
+     }
+        
         stage('Checkout') {
             steps {
                 // Pobranie kodu z repozytorium GitHub
