@@ -64,15 +64,13 @@ pipeline {
                 }
             }
         }
-      stage('End') {
-          steps {
-                echo "Pipeline zakończony pomyślnie!"
-         }
-      }
     }
     
     
     post {
+        success {
+            echo 'Pipeline zakończony sukcesem!'
+        }
         failure {
             echo 'Pipeline zakończony niepowodzeniem!'
         }
