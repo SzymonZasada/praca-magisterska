@@ -1,10 +1,11 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:20.11.1-alpine' 
-            args '--user root -v /var/run/docker.sock:/var/run/docker.sock'  
-        }
-    }
+    // agent {
+    //     docker {
+    //         image 'node:20.11.1-alpine' 
+    //         args '--user root -v /var/run/docker.sock:/var/run/docker.sock'  
+    //     }
+    // }
+    agent any
     
     environment {
         APP_NAME = 'react-app'
@@ -15,13 +16,13 @@ pipeline {
     }
     
     stages {
-       stage('Setup') {
-           steps {
-               sh 'sudo apk add --no-cache git || apk add --no-cache git'
-               sh 'git config --global --add safe.directory /var/lib/jenkins/workspace/Pipeline'
+     //   stage('Setup') {
+     //       steps {
+     //           sh 'sudo apk add --no-cache git || apk add --no-cache git'
+     //           sh 'git config --global --add safe.directory /var/lib/jenkins/workspace/Pipeline'
 
-        }
-     }
+     //    }
+     // }
         
         stage('Checkout') {
             steps {
