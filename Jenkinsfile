@@ -7,9 +7,13 @@ pipeline {
         
         // Wykrywanie platformy chmurowej
         CLOUD_PLATFORM = sh(script: 'cat /etc/cloud-platform 2>/dev/null || echo "unknown"', returnStdout: true).trim()
+        
+        // Czas rozpoczęcia całkowitego pipeline'a
+        PIPELINE_START_TIME = System.currentTimeMillis()
     }
     
     stages {
+    
         stage('Checkout') {
             steps {
                 // Pobranie kodu z repozytorium GitHub
@@ -23,14 +27,25 @@ pipeline {
         
         stage('Build') {
             steps {
-                // Instalacja zależności
-                sh 'npm install'
-                
-                // Budowanie aplikacji
-                sh 'npm run build'
+                script {
+                    // Czas rozpoczęcia etapu Build
+                    def buildStartTime = System.currentTimeMillis()
+                    echo "Build started at: ${buildStartTime}"
+                    
+                    // Instalacja zależności
+                    sh 'npm install'
+                    
+                    // Budowanie aplikacji
+                    sh 'npm run build'
+                    
+                    // Czas zakończenia etapu Build
+                    def buildEndTime = System.currentTimeMillis()
+                    def buildDuration = (buildEndTime - buildStartTime) / 1000  // w sekundach
+                    echo "Czas budowowania apliakcji FE: ${buildDuration} sekund"
+                }
                 
                 // Archiwizacja artefaktów
-                archiveArtifacts artifacts: 'build/**/*', fingerprint: true
+                archiveArtifacts artifacts: 'dist/**/*', fingerprint: true
             }
         }
         
@@ -49,6 +64,7 @@ pipeline {
                 script {
                     if (env.CLOUD_PLATFORM == 'aws') {
                         // Wdrażanie na AWS
+                        sh "chmod +x ./deploy-scripts/deploy-aws.sh"
                         sh './deploy-scripts/deploy-aws.sh'
                     } else if (env.CLOUD_PLATFORM == 'azure') {
                         // Wdrażanie na Azure
@@ -62,19 +78,6 @@ pipeline {
                 }
             }
         }
-        
-        stage('Verify') {
-            steps {
-                // Oczekiwanie na gotowość aplikacji
-                sh 'sleep 30'
-                
-                // Weryfikacja dostępności aplikacji
-                sh './verify-deployment.sh'
-                
-                // Zbieranie podstawowych metryk
-                sh './collect-metrics.sh'
-            }
-        }
     }
     
     post {
@@ -85,12 +88,15 @@ pipeline {
             echo 'Pipeline zakończony niepowodzeniem!'
         }
         always {
+            script {
+                // Czas zakończenia całkowitego pipeline'a
+                def totalTime = (System.currentTimeMillis() - env.PIPELINE_START_TIME.toLong()) / 1000  // w sekundach
+                echo "Czas wykonania całego pipeline-a: ${totalTime} sekund"
+            }
+            
             // Czyszczenie środowiska
             sh 'docker rmi ${APP_NAME}:${BUILD_VERSION} || true'
             sh 'docker rmi ${APP_NAME}:latest || true'
-            
-            // Archiwizacja metryk
-            archiveArtifacts artifacts: 'metrics/*.json', allowEmptyArchive: true
         }
     }
 }

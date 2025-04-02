@@ -23,7 +23,7 @@ FROM nginx:1.25-alpine
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Kopiowanie zbudowanych plików z etapu 1
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Konfiguracja healthcheck
 HEALTHCHECK --interval=30s --timeout=3s \
