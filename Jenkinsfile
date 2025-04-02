@@ -63,6 +63,7 @@ pipeline {
                 script {
                     if (env.CLOUD_PLATFORM == 'aws') {
                         // Wdrażanie na AWS
+                        sh "chmod +x ./deploy-scripts/deploy-aws.sh"
                         sh './deploy-scripts/deploy-aws.sh'
                     } else if (env.CLOUD_PLATFORM == 'azure') {
                         // Wdrażanie na Azure
