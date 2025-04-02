@@ -43,7 +43,7 @@ pipeline {
                 sh 'npm run build'
                 
                 // Archiwizacja artefaktów
-                archiveArtifacts artifacts: 'build/**/*', fingerprint: true
+                archiveArtifacts artifacts: 'dist/**/*', fingerprint: true
             }
         }
         
