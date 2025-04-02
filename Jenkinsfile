@@ -7,6 +7,9 @@ pipeline {
         
         // Wykrywanie platformy chmurowej
         CLOUD_PLATFORM = sh(script: 'cat /etc/cloud-platform 2>/dev/null || echo "unknown"', returnStdout: true).trim()
+        
+        // Czas rozpoczęcia całkowitego pipeline'a
+        PIPELINE_START_TIME = System.currentTimeMillis()
     }
     
     stages {
@@ -24,11 +27,25 @@ pipeline {
         
         stage('Build') {
             steps {
-                // Instalacja zależności
-                sh 'npm install'
-                
-                // Budowanie aplikacji
-                sh 'npm run build'
+                script {
+                    // Czas rozpoczęcia etapu Build
+                    def buildStartTime = System.currentTimeMillis()
+                    echo "Build started at: ${buildStartTime}"
+                    
+                    // Instalacja zależności
+                    sh 'npm install'
+                    
+                    // Budowanie aplikacji
+                    sh 'npm run build'
+                    
+                    // Czas zakończenia etapu Build
+                    def buildEndTime = System.currentTimeMillis()
+                    def buildDuration = (buildEndTime - buildStartTime) / 1000  // w sekundach
+                    echo "Build duration: ${buildDuration} seconds"
+                    
+                    // Zapisanie czasu trwania etapu Build do pliku
+                    sh "echo Build duration for ${env.CLOUD_PLATFORM} (Build Stage): ${buildDuration} seconds >> build_times.log"
+                }
                 
                 // Archiwizacja artefaktów
                 archiveArtifacts artifacts: 'dist/**/*', fingerprint: true
@@ -66,7 +83,6 @@ pipeline {
         }
     }
     
-    
     post {
         success {
             echo 'Pipeline zakończony sukcesem!'
@@ -75,6 +91,13 @@ pipeline {
             echo 'Pipeline zakończony niepowodzeniem!'
         }
         always {
+            // Czas zakończenia całkowitego pipeline'a
+            def totalTime = (System.currentTimeMillis() - env.PIPELINE_START_TIME) / 1000  // w sekundach
+            echo "Total build time: ${totalTime} seconds"
+            
+            // Zapisanie całkowitego czasu do pliku
+            sh "echo Total build time for ${env.CLOUD_PLATFORM}: ${totalTime} seconds >> build_times.log"
+            
             // Czyszczenie środowiska
             sh 'docker rmi ${APP_NAME}:${BUILD_VERSION} || true'
             sh 'docker rmi ${APP_NAME}:latest || true'
