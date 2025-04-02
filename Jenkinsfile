@@ -18,6 +18,8 @@ pipeline {
        stage('Setup') {
            steps {
                sh 'sudo apk add --no-cache git || apk add --no-cache git'
+               sh 'git config --global --add safe.directory /var/lib/jenkins/workspace/Pipeline'
+
         }
      }
         
