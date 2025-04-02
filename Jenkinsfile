@@ -68,9 +68,11 @@ pipeline {
                         sh './deploy-scripts/deploy-aws.sh'
                     } else if (env.CLOUD_PLATFORM == 'azure') {
                         // Wdrażanie na Azure
+                        sh "chmod +x ./deploy-scripts/deploy-azure.sh"
                         sh './deploy-scripts/deploy-azure.sh'
                     } else if (env.CLOUD_PLATFORM == 'gcp') {
                         // Wdrażanie na GCP
+                        sh "chmod +x ./deploy-scripts/deploy-gcp.sh"
                         sh './deploy-scripts/deploy-gcp.sh'
                     } else {
                         error "Nieobsługiwana platforma chmurowa: ${env.CLOUD_PLATFORM}"
