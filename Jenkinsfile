@@ -41,10 +41,7 @@ pipeline {
                     // Czas zakończenia etapu Build
                     def buildEndTime = System.currentTimeMillis()
                     def buildDuration = (buildEndTime - buildStartTime) / 1000  // w sekundach
-                    echo "Build duration: ${buildDuration} seconds"
-                    
-                    // Zapisanie czasu trwania etapu Build do pliku
-                    sh "echo Build duration for ${env.CLOUD_PLATFORM} (Build Stage): ${buildDuration} seconds >> build_times.log"
+                    echo "Czas budowowania apliakcji FE: ${buildDuration} sekund"
                 }
                 
                 // Archiwizacja artefaktów
@@ -93,10 +90,7 @@ pipeline {
         always {
             // Czas zakończenia całkowitego pipeline'a
             def totalTime = (System.currentTimeMillis() - env.PIPELINE_START_TIME) / 1000  // w sekundach
-            echo "Total build time: ${totalTime} seconds"
-            
-            // Zapisanie całkowitego czasu do pliku
-            sh "echo Total build time for ${env.CLOUD_PLATFORM}: ${totalTime} seconds >> build_times.log"
+            echo "Czas wykonania całego pipeline-a: ${totalTime} sekund"
             
             // Czyszczenie środowiska
             sh 'docker rmi ${APP_NAME}:${BUILD_VERSION} || true'
