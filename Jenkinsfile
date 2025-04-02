@@ -17,7 +17,7 @@ pipeline {
     stages {
        stage('Setup') {
            steps {
-               sh 'apk add --no-cache git'
+               sh 'sudo apk add --no-cache git || apk add --no-cache git'
         }
      }
         
