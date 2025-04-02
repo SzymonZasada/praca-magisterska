@@ -3,23 +3,23 @@ set -e
 
 echo "Rozpoczynam wdrażanie na GCP..."
 
-# Logowanie do Google Cloud
-gcloud auth activate-service-account --key-file=${GCP_KEY_FILE}
+# Zakładamy, że obraz Docker już istnieje lokalnie (zbudowany przez Jenkinsa)
+echo "Używam lokalnego obrazu ${APP_NAME}:${BUILD_VERSION} do wdrożenia"
 
-# Konfiguracja projektu
-gcloud config set project ${GCP_PROJECT_ID}
+# Zatrzymanie i usunięcie istniejącego kontenera (jeśli istnieje)
+docker stop ${APP_NAME} 2>/dev/null || true
+docker rm ${APP_NAME} 2>/dev/null || true
 
-# Tagowanie obrazu dla Google Container Registry
-docker tag ${APP_NAME}:${BUILD_VERSION} gcr.io/${GCP_PROJECT_ID}/${APP_NAME}:${BUILD_VERSION}
+# Uruchomienie nowego kontenera
+docker run -d --name ${APP_NAME} \
+  -p 80:80 \
+  --restart unless-stopped \
+  ${APP_NAME}:${BUILD_VERSION}
 
-# Wysyłanie obrazu do GCR
-docker push gcr.io/${GCP_PROJECT_ID}/${APP_NAME}:${BUILD_VERSION}
+echo "Kontener ${APP_NAME} uruchomiony na porcie 80"
 
-# Wdrażanie do Cloud Run
-gcloud run deploy ${APP_NAME} \
-  --image gcr.io/${GCP_PROJECT_ID}/${APP_NAME}:${BUILD_VERSION} \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated
+# Zapisanie informacji o wdrożeniu
+mkdir -p ./metrics
+echo "{\"deploymentTime\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\", \"version\": \"${BUILD_VERSION}\", \"environment\": \"gcp\"}" > ./metrics/deployment-info.json
 
 echo "Wdrażanie na GCP zakończone."
