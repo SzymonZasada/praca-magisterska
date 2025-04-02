@@ -88,9 +88,11 @@ pipeline {
             echo 'Pipeline zakończony niepowodzeniem!'
         }
         always {
-            // Czas zakończenia całkowitego pipeline'a
-            def totalTime = (System.currentTimeMillis() - env.PIPELINE_START_TIME) / 1000  // w sekundach
-            echo "Czas wykonania całego pipeline-a: ${totalTime} sekund"
+            script {
+                // Czas zakończenia całkowitego pipeline'a
+                def totalTime = (System.currentTimeMillis() - env.PIPELINE_START_TIME.toLong()) / 1000  // w sekundach
+                echo "Czas wykonania całego pipeline-a: ${totalTime} sekund"
+            }
             
             // Czyszczenie środowiska
             sh 'docker rmi ${APP_NAME}:${BUILD_VERSION} || true'
