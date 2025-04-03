@@ -33,9 +33,9 @@ const Sidebar: React.FC<SidebarProps> = ({ mobile = false, closeSidebar }) => {
       <div className="flex items-center justify-between h-16 px-4 border-b border-slate-200 dark:border-slate-700">
         <Link to="/" className="flex items-center">
           <div className="h-8 w-8 rounded-full bg-indigo-600 mr-3 flex items-center justify-center">
-            <span className="text-white font-bold">SZ</span>
+            <span className="text-white font-bold">XYZ</span>
           </div>
-          <span className="text-lg font-semibold dark:text-white">SZ</span>
+          <span className="text-lg font-semibold dark:text-white">XYZ</span>
         </Link>
         {mobile && closeSidebar && (
           <button
