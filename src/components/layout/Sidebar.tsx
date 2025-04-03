@@ -37,7 +37,6 @@ const Sidebar: React.FC<SidebarProps> = ({ mobile = false, closeSidebar }) => {
           </div>
           <span className="text-lg font-semibold dark:text-white">SZ</span>
         </Link>
-
         {mobile && closeSidebar && (
           <button
             onClick={closeSidebar}
