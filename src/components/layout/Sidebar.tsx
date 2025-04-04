@@ -6,7 +6,6 @@ import {
   Settings,
   X,
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
 
 interface SidebarProps {
   mobile?: boolean;
@@ -26,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mobile = false, closeSidebar }) => {
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Projekty", href: "/projects", icon: FolderKanban },
     { name: "Ustawienia", href: "/settings", icon: Settings },
-  ;
+  ];
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
